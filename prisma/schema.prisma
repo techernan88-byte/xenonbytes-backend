@@ -11,20 +11,38 @@ datasource db {
 }
 
 model Producto {
-  id        Int    @id @default(autoincrement())
-  titulo    String
-  precio    Float
-  categoria String
-  stock     Int
-  createdAt DateTime @default(now())   
-  updatedAt DateTime @updatedAt          
+  id           Int           @id @default(autoincrement())
+  titulo       String
+  precio       Float
+  categoria    String
+  stock        Int
+  descripcion  String?      
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  carritoItems CarritoItem[]
 }
 
 model CarritoItem {
-  id           String  @id @default(cuid())
+  id           String   @id @default(cuid())
   productoId   Int
+  producto     Producto @relation(fields: [productoId], references: [id])
   cantidad     Int
-  seleccionado Boolean @default(true)
+  userId       Int
+  user         User     @relation(fields: [userId], references: [id],  onDelete: Cascade)
+  seleccionado Boolean  @default(true)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  nombre    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  carritoItems CarritoItem[]
 }
