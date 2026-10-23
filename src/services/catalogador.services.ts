@@ -1,9 +1,10 @@
 import Anthropic from "@anthropic-ai/sdk";
+import { type ProductoExtraido } from "../types/ProductoExtraido";
 
 const anthropic = new Anthropic();
 
 const REGLAS_DESCRIPCION=`
-- Máximo 500 caracteres.
+- Máximo 600 caracteres.
 - Máximo 2 párrafos.
 - Sin emojis.
 - Tono profesional pero llamativo.
@@ -29,12 +30,7 @@ ${REGLAS_DESCRIPCION}
  
 Responde solo con el JSON, nada más.`;
 
-export interface ProductoExtraido{
-    titulo: string,
-    precio_mercado:number,
-    categoria:string,
-    descripcion:string,
-};
+
 
 export async function extraerProducto(textoCrudo:string):Promise<ProductoExtraido>{
     const respuesta= await anthropic.messages.create({
@@ -45,11 +41,12 @@ export async function extraerProducto(textoCrudo:string):Promise<ProductoExtraid
     });
 
     const bloque = respuesta.content[0];
+     console.log("TIPO DE BLOQUE:", bloque.type);   
     if(bloque.type !=="text"){
         throw new Error("Claude no devolvió text");
     }
-
-      // Claude a veces envuelve el JSON en ```json ... ```; lo limpiamos por si acaso.
+    console.log("TEXTO CRUDO DE CLAUDE:", bloque.text);  
+      // Claude a veces envuelve el JSON en ```json ... ```; se limpia por si acaso.
     const limpio=bloque.text.replace(/```json/g, "")
     .replace(/```/g, "")
     .trim();;

@@ -1,6 +1,7 @@
 import {Request, Response, NextFunction} from "express";
 import jwt from "jsonwebtoken";
 
+
 export function protegerRuta(req: Request, res:Response, next:NextFunction){
     //leer token
     const authHeader=req.headers.authorization;

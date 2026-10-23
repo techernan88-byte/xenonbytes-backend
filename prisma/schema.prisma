@@ -10,17 +10,26 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Categoria {
+  id        Int        @id @default(autoincrement())
+  nombre    String     @unique          
+  productos Producto[]               
+}
+
 model Producto {
   id           Int           @id @default(autoincrement())
   titulo       String
+  sku          String?       @unique
   precio       Float
-  categoria    String
+  categoriaId  Int                                              
+  categoria    Categoria     @relation(fields: [categoriaId], references: [id]) 
   stock        Int
-  descripcion  String?      
+  descripcion  String?
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
   carritoItems CarritoItem[]
 }
+
 
 model CarritoItem {
   id           String   @id @default(cuid())
@@ -46,3 +55,4 @@ model User {
 
   carritoItems CarritoItem[]
 }
+
