@@ -12,8 +12,8 @@ datasource db {
 
 model Categoria {
   id        Int        @id @default(autoincrement())
-  nombre    String     @unique          
-  productos Producto[]               
+  nombre    String     @unique
+  productos Producto[]
 }
 
 model Producto {
@@ -21,8 +21,8 @@ model Producto {
   titulo       String
   sku          String?       @unique
   precio       Float
-  categoriaId  Int                                              
-  categoria    Categoria     @relation(fields: [categoriaId], references: [id]) 
+  categoriaId  Int
+  categoria    Categoria     @relation(fields: [categoriaId], references: [id])
   stock        Int
   descripcion  String?
   createdAt    DateTime      @default(now())
@@ -30,14 +30,13 @@ model Producto {
   carritoItems CarritoItem[]
 }
 
-
 model CarritoItem {
   id           String   @id @default(cuid())
   productoId   Int
   producto     Producto @relation(fields: [productoId], references: [id])
   cantidad     Int
   userId       Int
-  user         User     @relation(fields: [userId], references: [id],  onDelete: Cascade)
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   seleccionado Boolean  @default(true)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
@@ -53,6 +52,28 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  carritoItems CarritoItem[]
+  carritoItems   CarritoItem[]
+  conversaciones Conversacion[]
 }
 
+model Conversacion {
+  id        Int       @id @default(autoincrement())
+  userId    Int?
+  user      User?     @relation(fields: [userId], references: [id])
+  mensajes  Mensaje[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([userId])
+}
+
+model Mensaje {
+  id             Int          @id @default(autoincrement())
+  conversacionId Int
+  conversacion   Conversacion @relation(fields: [conversacionId], references: [id], onDelete: Cascade)
+  rol            String
+  contenido      Json
+  createdAt      DateTime     @default(now())
+
+  @@index([conversacionId])
+}

@@ -6,6 +6,7 @@ import authRouter from "./routes/auth.routes";
 import catalogadorRouter from "./routes/catalogador.routes";
 import generadorRouter from "./routes/generador.routes"
 import categoriasRouter from "./routes/categorias.routes";
+import chatRouter from "./routes/chat.routes";
 
 const app = express();
 const  PORT = process.env.PORT || 3000;
@@ -39,6 +40,9 @@ app.use("/generador",generadorRouter);
 
 //router categorias
 app.use("/categorias", categoriasRouter);
+
+//router chat
+app.use("/chat",chatRouter);
 
 //prueba de ejecución con puerto
 app.listen(PORT, () => {

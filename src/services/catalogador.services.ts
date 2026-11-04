@@ -3,20 +3,21 @@ import { type ProductoExtraido } from "../types/ProductoExtraido";
 
 const anthropic = new Anthropic();
 
-const REGLAS_DESCRIPCION=`
+const REGLAS_DESCRIPCION = `
 - Máximo 600 caracteres.
 - Máximo 2 párrafos.
 - Sin emojis.
 - Tono profesional pero llamativo.
 - Conserva las especificaciones técnicas importantes del producto.
 - Elimina relleno de marketing (frases como "la plataforma definitiva").
+REGLA ABSOLUTA: tu respuesta NO debe contener ningún emoji ni carácter Unicode decorativo (como ✅, 🎮, 💰, ✨). Usa únicamente texto plano.
 `;
 
-function construirInstrucciones(categoriasExistentes:string[]):string{
+function construirInstrucciones(categoriasExistentes: string[]): string {
 
-const listaCategorias = categoriasExistentes.map((c)=>`${c}`).join(", ");  
+  const listaCategorias = categoriasExistentes.map((c) => `${c}`).join(", ");
 
-return `Eres un catalogador de productos para una tienda de tecnología.
+  return `Eres un catalogador de productos para una tienda de tecnología.
 Recibes el texto crudo y desordenado de un producto (copiado de una tienda online)
 y extraes la información a un objeto JSON.
 
@@ -48,29 +49,35 @@ Responde solo con el JSON, nada más.`;
 
 
 
-export async function extraerProducto(textoCrudo:string
-  , categoriaExistentes:string []
+export async function extraerProducto(textoCrudo: string
+  , categoriaExistentes: string[]
 )
-:Promise<ProductoExtraido>{
-    const respuesta= await anthropic.messages.create({
-        model: "claude-haiku-4-5",
-        max_tokens:1024,
-        system:construirInstrucciones(categoriaExistentes), cache_control: { type: "ephemeral" },
-        messages:[{role:"user", content:textoCrudo}],
-    });
+  : Promise<ProductoExtraido> {
+  const respuesta = await anthropic.messages.create({
+    model: "claude-sonnet-4-5-20250929",
+    max_tokens: 1024,
+    system: [
+      {
+        type: "text",
+        text: construirInstrucciones(categoriaExistentes),
+        cache_control: { type: "ephemeral" },
+      },
+    ],
+    messages: [{ role: "user", content: textoCrudo }],
+  });
 
-    const bloque = respuesta.content[0];
-     // console.log("TIPO DE BLOQUE:", bloque.type);   
-    if(bloque.type !=="text"){
-        throw new Error("Claude no devolvió text");
-    }
-    console.log("TEXTO CRUDO DE CLAUDE:", bloque.text);  
-      // Claude a veces envuelve el JSON en ```json ... ```; se limpia por si acaso.
-    const limpio=bloque.text.replace(/```json/g, "")
+  const bloque = respuesta.content[0];
+  // console.log("TIPO DE BLOQUE:", bloque.type);   
+  if (bloque.type !== "text") {
+    throw new Error("Claude no devolvió text");
+  }
+  console.log("TEXTO CRUDO DE CLAUDE:", bloque.text);
+  // Claude a veces envuelve el JSON en ```json ... ```; se limpia por si acaso.
+  const limpio = bloque.text.replace(/```json/g, "")
     .replace(/```/g, "")
     .trim();;
 
-    return JSON.parse(limpio) as ProductoExtraido;
+  return JSON.parse(limpio) as ProductoExtraido;
 }
 
 
