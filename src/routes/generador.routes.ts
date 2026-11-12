@@ -23,7 +23,7 @@ router.post("/generar", async (req,res)=>{
        res.json(productos); 
     }catch(error){
         console.error("Error al generar productos",error);
-        res.status(500).json
+        res.status(500).json;
     }
 
     
