@@ -12,8 +12,12 @@ const app = express();
 const  PORT = process.env.PORT || 3000;
 
 
+const corsOrigins = (process.env.CORS_ORIGINS || "http://localhost:5173")
+  .split(",")
+  .map(url => url.trim());
+
 app.use(cors({
-  origin: ["https://xenonbytes-frontend.vercel.app", "http://localhost:5173"]
+  origin: corsOrigins
 }));
 
 app.use(express.json());
